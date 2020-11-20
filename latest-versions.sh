@@ -16,6 +16,9 @@ get_latest() {
 
 	local resp
 	resp=$(curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" "${URI}/repos/${repo}/releases")
+	if [[ "$repo" != "Radarr/Radarr" ]]; then
+		resp=$(echo "$resp" | jq --raw-output '[.[] | select(.prerelease == false)]')
+	fi
 	local tag
 	tag=$(echo "$resp" | jq -e --raw-output .[0].tag_name)
 	local name
@@ -43,13 +46,9 @@ get_latest() {
 	elif [[ "$dir" == "Tautulli" ]]; then
 		dir="plexpy"
 	elif [[ "$dir" == "zookeeper" ]]; then
-		dir="zookeeper/3.5"
+		dir="zookeeper/3.6"
 	elif [[ "$dir" == "oauth2_proxy" ]]; then
 		dir="oauth2-proxy"
-	elif [[ "$dir" == "now-cli" ]]; then
-		dir="now"
-	elif [[ "$dir" == "wireguard" ]]; then
-		dir="wireguard/install"
 	fi
 
 	# Change to upper case for grep
@@ -58,6 +57,14 @@ get_latest() {
 	# Replace dashes (-) with underscores (_)
 	udir=${udir//-/_}
 	udir=${udir%/*}
+
+	if [[ "$dir" == "wireguard-tools" ]]; then
+		dir="wireguard/install"
+		udir="WIREGUARD_TOOLS"
+	elif [[ "$dir" == "wireguard-linux-compat" ]]; then
+		dir="wireguard/install"
+		udir="WIREGUARD"
+	fi
 
 	local current
 	if [[ ! -d "$dir" ]]; then
@@ -85,7 +92,7 @@ get_latest_unifi() {
 
 compare() {
 	local name="$1" dir="$2" tag="$3" current="$4" releases="$5"
-	ignore_dirs=( "bazel" "bcc" "mc" "nzbget" "osquery" "powershell" "rstudio" )
+	ignore_dirs=( "mc" "zookeeper/3.6" )
 
 	if [[ "$tag" =~ $current ]] || [[ "$name" =~ $current ]] || [[ "$current" =~ $tag ]] || [[ "$current" == "master" ]]; then
 		echo -e "\\e[36m${dir}:\\e[39m current ${current} | ${tag} | ${name}"
@@ -99,59 +106,65 @@ compare() {
 }
 
 projects=(
-noelbundick/azure-cli-extension-noelbundick
-iovisor/bcc
-browsh-org/browsh
-certbot/certbot
-cloudflare/cfssl
-hashicorp/consul
-coredns/coredns
-CouchPotato/CouchPotatoServer
-curl/curl
-kolide/fleet
-GoogleCloudPlatform/cloud-sdk-docker
-google/gitiles
-bazelbuild/bazel
-google/guetzli
-irssi/irssi
-cryptodotis/irssi-otr
-keepassxreboot/keepassxc
-robertdavidgraham/masscan
-MidnightCommander/mc
-zyedidia/micro
-hashicorp/nomad
-zeit/now-cli
-nzbget/nzbget
-bitly/oauth2_proxy
-facebook/osquery
-hashicorp/packer
-Tautulli/Tautulli
-perkeep/perkeep
-powershell/powershell
-Radarr/Radarr
-cesanta/docker_auth
-ricochet-im/ricochet
-reverse-shell/routersploit
-rstudio/rstudio
-tarsnap/tarsnap
-fcambus/telize
-nginx/nginx
-simplresty/ngx_devel_kit
-openresty/lua-nginx-module
-leev/ngx_http_geoip2_module
-maxmind/libmaxminddb
-hashicorp/terraform
-kdlucas/byte-unixbench
-mitchellh/vagrant
-hashicorp/vault
-v2tec/watchtower
-wireguard/wireguard
-znc/znc
-apache/zookeeper
+	iovisor/bcc
+	iovisor/bpftrace
+	browsh-org/browsh
+	certbot/certbot
+	cloudflare/cfssl
+	quay/clair
+	hashicorp/consul
+	coredns/coredns
+	CouchPotato/CouchPotatoServer
+	curl/curl
+	kolide/fleet
+	GoogleCloudPlatform/cloud-sdk-docker
+	google/gitiles
+	google/guetzli
+	irssi/irssi
+	cryptodotis/irssi-otr
+	keepassxreboot/keepassxc
+	robertdavidgraham/masscan
+	MidnightCommander/mc
+	zyedidia/micro
+	mitmproxy/mitmproxy
+	hashicorp/nomad
+	nzbget/nzbget
+	pusher/oauth2_proxy
+	facebook/osquery
+	hashicorp/packer
+	Tautulli/Tautulli
+	perkeep/perkeep
+	pomerium/pomerium
+	powershell/powershell
+	Radarr/Radarr
+	cesanta/docker_auth
+	ricochet-im/ricochet
+	reverse-shell/routersploit
+	rstudio/rstudio
+	tarsnap/tarsnap
+	nginx/nginx
+	simplresty/ngx_devel_kit
+	openresty/luajit2
+	openresty/lua-cjson
+	openresty/lua-nginx-module
+	leev/ngx_http_geoip2_module
+	maxmind/libmaxminddb
+	openresty/lua-resty-core
+	openresty/lua-resty-lrucache
+	hashicorp/terraform
+	kdlucas/byte-unixbench
+	mitchellh/vagrant
+	hashicorp/vault
+	containrrr/watchtower
+	wireguard/wireguard-tools
+	wireguard/wireguard-linux-compat
+	znc/znc
+	apache/zookeeper
+	tianon/gosu
 )
 
 other_projects=(
-unifi
+	unifi
 )
 
 bad_versions=()

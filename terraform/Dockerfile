@@ -7,21 +7,19 @@ ENV GOPATH /go
 RUN	apk add --no-cache \
 	bash \
 	ca-certificates \
+	gcc \
 	git \
 	make \
+	musl-dev \
 	zip
 
-ENV TERRAFORM_VERSION v0.11.8
+ENV TERRAFORM_VERSION v0.12.28
 
-RUN go get github.com/hashicorp/terraform
+RUN go get github.com/hashicorp/terraform || true
 
 WORKDIR /go/src/github.com/hashicorp/terraform
 
 RUN git checkout "${TERRAFORM_VERSION}"
-
-# Install the vendor packages so stringer works.
-# See: https://github.com/golang/go/issues/10249
-RUN go install ./vendor/...
 
 RUN XC_ARCH="amd64" XC_OS="linux" LD_FLAGS=" -extldflags -static" make fmt bin \
 	&& mv bin/terraform /usr/bin/terraform

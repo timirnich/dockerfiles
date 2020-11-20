@@ -40,7 +40,7 @@ RUN apt-get update && apt-get install -y \
 	&& rm -rf /var/lib/apt/lists/*
 
 # install gosu
-ENV GOSU_VERSION 1.10
+ENV GOSU_VERSION 1.12
 RUN set -ex; \
 	\
 	fetchDeps=' \
@@ -56,7 +56,13 @@ RUN set -ex; \
 	\
 # verify the signature
 	export GNUPGHOME="$(mktemp -d)"; \
-	gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4; \
+    for server in $(shuf -e ha.pool.sks-keyservers.net \
+                            hkp://p80.pool.sks-keyservers.net:80 \
+                            keyserver.ubuntu.com \
+                            hkp://keyserver.ubuntu.com:80 \
+                            pgp.mit.edu) ; do \
+        gpg --keyserver "$server" --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 && break || : ; \
+    done && \
 	gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu; \
 	rm -r "$GNUPGHOME" /usr/local/bin/gosu.asc; \
 	\
@@ -82,14 +88,14 @@ RUN apt-get update && apt-get install -y \
 
 # unifi version
 # From: https://www.ubnt.com/download/unifi/
-ENV UNIFI_VERSION "5.9.29"
+ENV UNIFI_VERSION "5.12.72"
 
 # install unifi
 RUN apt-get update && apt-get install -y \
 		curl \
 		--no-install-recommends \
 	&& rm -rf /var/lib/apt/lists/* \
-	&& curl -o /tmp/unifi.deb -L "http://dl.ubnt.com/unifi/${UNIFI_VERSION}/unifi_sysvinit_all.deb" \
+	&& curl -o /tmp/unifi.deb -L "https://dl.ubnt.com/unifi/${UNIFI_VERSION}/unifi_sysvinit_all.deb" \
 	&& dpkg -i /tmp/unifi.deb \
 	&& rm -rf /tmp/unifi.deb \
 	&& echo "Build complete."
@@ -102,8 +108,9 @@ WORKDIR /config
 # 8843 - guest portal (https)
 # 8880 - guest portal (http)
 # 6789 - throughput / mobile speedtest (tcp)
+# 10001 - device discovery (udp)
 # ref https://help.ubnt.com/hc/en-us/articles/218506997-UniFi-Ports-Used
-EXPOSE 3478/udp 8080 8081 8443 8843 8880 6789
+EXPOSE 3478/udp 8080 8081 8443 8843 8880 6789 10001/udp
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 

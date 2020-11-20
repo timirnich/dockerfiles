@@ -1,21 +1,43 @@
 ## dockerfiles
 
-[![Travis CI](https://img.shields.io/travis/jessfraz/dockerfiles.svg?style=for-the-badge)](https://travis-ci.org/jessfraz/dockerfiles)
+[![make test](https://github.com/jessfraz/dockerfiles/workflows/make%20test/badge.svg)](https://github.com/jessfraz/dockerfiles/actions?query=workflow%3A%22make+test%22+branch%3Amaster)
 
 This is a repo to hold various Dockerfiles for images I create.
 
-I try to make sure each has a command at the top for running it,
-if a file you are looking at does not have a command, please
-pull request it!
+
+**Table of Contents**
+
+<!-- toc -->
+
+- [About](#about)
+- [Resources](#resources)
+  * [My dotfiles](#my-dotfiles)
+- [Contributing](#contributing)
+  * [Using the `Makefile`](#using-the-makefile)
+
+<!-- tocstop -->
+
+## About
 
 Almost all of these live on dockerhub under [jess](https://hub.docker.com/u/jess/).
 Because you cannot use notary with autobuilds on dockerhub I also build these
 continuously on a private registry at [r.j3ss.co](https://r.j3ss.co/) for public download. (You're
 welcome.)
 
+## Resources
+
+### My dotfiles
+
 You may also want to checkout my [dotfiles](https://github.com/jessfraz/dotfiles), specifically the aliases for all these files which are here: [github.com/jessfraz/dotfiles/blob/master/.dockerfunc](https://github.com/jessfraz/dotfiles/blob/master/.dockerfunc).
 
-#### Using the `Makefile`
+## Contributing
+
+I try to make sure each Dockerfile has a command at the top to document running it,
+if a file you are looking at does not have a command, please
+pull request it!
+
+
+### Using the `Makefile`
 
 ```
 $ make help
